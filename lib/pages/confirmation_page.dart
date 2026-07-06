@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:business_card_scanner/models/contact.dart';
 
 class ConfirmationPage extends StatelessWidget {
-	final Map<String, String> contactInfo;
+	final Contact contactInfo;
 	final VoidCallback onConfirm;
 	final VoidCallback onTryAgain;
 
@@ -22,21 +23,15 @@ class ConfirmationPage extends StatelessWidget {
 				children: [
 					const Text('We found this information:'),
 					const SizedBox(height: 12),
-					_infoRow('Name', contactInfo['name'] ?? 'Unknown'),
-					_infoRow('Phone', contactInfo['phone'] ?? 'Unknown'),
-					_infoRow('Email', contactInfo['email'] ?? 'Unknown'),
-					_infoRow('Company', contactInfo['company'] ?? 'Unknown'),
+					_infoRow('Name', contactInfo.name),
+					_infoRow('Phone', contactInfo.phone),
+					_infoRow('Email', contactInfo.email),
+					_infoRow('Company', contactInfo.company),
 				],
 			),
 			actions: [
-				TextButton(
-					onPressed: onTryAgain,
-					child: const Text('Try again'),
-				),
-				ElevatedButton(
-					onPressed: onConfirm,
-					child: const Text('Confirm'),
-				),
+				TextButton(onPressed: onTryAgain, child: const Text('Try again')),
+				ElevatedButton(onPressed: onConfirm, child: const Text('Confirm')),
 			],
 		);
 	}
@@ -47,10 +42,7 @@ class ConfirmationPage extends StatelessWidget {
 			child: Row(
 				crossAxisAlignment: CrossAxisAlignment.start,
 				children: [
-					SizedBox(
-						width: 70,
-						child: Text('$label:'),
-					),
+					SizedBox(width: 70, child: Text('$label:')),
 					Expanded(child: Text(value)),
 				],
 			),
