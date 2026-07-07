@@ -53,6 +53,15 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
     );
   }
 
+  bool get _hasUsefulData {
+    final contact = _editedContact;
+
+    return contact.name != 'Unknown' ||
+        contact.phone != 'Unknown' ||
+        contact.email != 'Unknown' ||
+        contact.company != 'Unknown';
+  }
+
   String _valueOrUnknown(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? 'Unknown' : trimmed;
@@ -62,17 +71,19 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Confirm extracted contact'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('We found this information:'),
-          const SizedBox(height: 12),
-          _infoField('Name', _nameController),
-          _infoField('Phone', _phoneController),
-          _infoField('Email', _emailController),
-          _infoField('Company', _companyController),
-        ],
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('We found this information:'),
+            const SizedBox(height: 12),
+            _infoField('Name', _nameController),
+            _infoField('Phone', _phoneController),
+            _infoField('Email', _emailController),
+            _infoField('Company', _companyController),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -94,6 +105,17 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
   }
 
   Future<void> _confirm() async {
+    if (!_hasUsefulData) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No usable contact information was detected. Try retaking the photo.',
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isConfirming = true);
 
     try {

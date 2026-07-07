@@ -32,7 +32,18 @@ class _CameraPageState extends State<CameraPage> {
         setState(() => _errorMessage = 'No camera available.');
         return;
       }
-      _controller = CameraController(cameras.first, ResolutionPreset.medium);
+
+      final backCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first,
+      );
+      _controller = CameraController(
+        backCamera,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
+      // _controller = CameraController(cameras.first, ResolutionPreset.medium);
+      
       await _controller!.initialize();
       if (!mounted) return;
       setState(() => _isReady = true);
@@ -65,14 +76,15 @@ class _CameraPageState extends State<CameraPage> {
 
       await showDialog<void>(
         context: context,
-        builder: (context) {
+        builder: (dialogContext) {
           return ConfirmationPage(
             contactInfo: scannedContact,
             onConfirm: (editedContact) async {
               try {
                 await _contactSaverService.save(editedContact);
               } on ContactSavePermissionException {
-                if (!context.mounted) return;
+                if (!mounted) return;
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Contacts permission is needed to save.'),
@@ -80,23 +92,23 @@ class _CameraPageState extends State<CameraPage> {
                 );
                 return;
               } catch (e) {
-                if (!context.mounted) return;
+                if (!mounted) return;
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Failed to save contact: $e')),
                 );
                 return;
               }
-
-              if (!context.mounted) return;
-              Navigator.of(context).pop(); // pops back to camera page
+              if (!mounted) return;
+              Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('${editedContact.name} added to contacts'),
                 ),
               );
-              Navigator.of(context).pop(); // then pops back to the home page
+              Navigator.of(context).pop();
             },
-            onTryAgain: () => Navigator.of(context).pop(),
+            onTryAgain: () => Navigator.of(dialogContext).pop(),
           );
         },
       );
