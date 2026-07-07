@@ -68,6 +68,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>the camera is used to scan business cards to extract contact information</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Contact access is used to save scanned business card details into your contacts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>as of now, there is no specific function of the microphone</string>
 </dict>

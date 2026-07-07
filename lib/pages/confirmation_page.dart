@@ -3,7 +3,7 @@ import 'package:business_card_scanner/models/contact.dart';
 
 class ConfirmationPage extends StatefulWidget {
   final Contact contactInfo;
-  final ValueChanged<Contact> onConfirm;
+  final Future<void> Function(Contact contact) onConfirm;
   final VoidCallback onTryAgain;
 
   const ConfirmationPage({
@@ -22,6 +22,7 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
   late final TextEditingController _phoneController;
   late final TextEditingController _emailController;
   late final TextEditingController _companyController;
+  bool _isConfirming = false;
 
   @override
   void initState() {
@@ -29,7 +30,9 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
     _nameController = TextEditingController(text: widget.contactInfo.name);
     _phoneController = TextEditingController(text: widget.contactInfo.phone);
     _emailController = TextEditingController(text: widget.contactInfo.email);
-    _companyController = TextEditingController(text: widget.contactInfo.company);
+    _companyController = TextEditingController(
+      text: widget.contactInfo.company,
+    );
   }
 
   @override
@@ -73,15 +76,33 @@ class _ConfirmationPageState extends State<ConfirmationPage> {
       ),
       actions: [
         TextButton(
-          onPressed: widget.onTryAgain,
+          onPressed: _isConfirming ? null : widget.onTryAgain,
           child: const Text('Try again'),
         ),
         ElevatedButton(
-          onPressed: () => widget.onConfirm(_editedContact),
-          child: const Text('Confirm'),
+          onPressed: _isConfirming ? null : _confirm,
+          child: _isConfirming
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Confirm'),
         ),
       ],
     );
+  }
+
+  Future<void> _confirm() async {
+    setState(() => _isConfirming = true);
+
+    try {
+      await widget.onConfirm(_editedContact);
+    } finally {
+      if (mounted) {
+        setState(() => _isConfirming = false);
+      }
+    }
   }
 
   Widget _infoField(String label, TextEditingController controller) {

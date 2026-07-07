@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:business_card_scanner/pages/confirmation_page.dart';
+import 'package:business_card_scanner/services/contact_saver_service.dart';
 import 'package:business_card_scanner/services/ocr_service.dart';
 
 class CameraPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class CameraPage extends StatefulWidget {
 class _CameraPageState extends State<CameraPage> {
   CameraController? _controller;
   final OcrService _ocrService = OcrService();
+  final ContactSaverService _contactSaverService = ContactSaverService();
   bool _isReady = false;
   bool _isScanning = false;
   String? _errorMessage;
@@ -66,10 +68,31 @@ class _CameraPageState extends State<CameraPage> {
         builder: (context) {
           return ConfirmationPage(
             contactInfo: scannedContact,
-            onConfirm: (editedContact) {
+            onConfirm: (editedContact) async {
+              try {
+                await _contactSaverService.save(editedContact);
+              } on ContactSavePermissionException {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Contacts permission is needed to save.'),
+                  ),
+                );
+                return;
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to save contact: $e')),
+                );
+                return;
+              }
+
+              if (!context.mounted) return;
               Navigator.of(context).pop(); // pops back to camera page
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${editedContact.name} confirmed')),
+                SnackBar(
+                  content: Text('${editedContact.name} added to contacts'),
+                ),
               );
               Navigator.of(context).pop(); // then pops back to the home page
             },

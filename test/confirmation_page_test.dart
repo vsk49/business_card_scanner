@@ -19,7 +19,7 @@ void main() {
               email: 'jane@example.com',
               phone: '+1 555-0100',
             ),
-            onConfirm: (contact) => confirmedContact = contact,
+            onConfirm: (contact) async => confirmedContact = contact,
             onTryAgain: () {},
           ),
         ),
