@@ -70,5 +70,7 @@
 	<string>the camera is used to scan business cards to extract contact information</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Contact access is used to save scanned business card details into your contacts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is used to import business card images for scanning.</string>
 </dict>
 </plist>
